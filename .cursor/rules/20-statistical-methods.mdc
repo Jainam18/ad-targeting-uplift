@@ -1,0 +1,36 @@
+---
+description: Exact statistical formulas and modeling specs from the pre-registered plan (inference, power, CUPED, uplift, policy)
+globs: src/**/*.py,notebooks/**/*.ipynb
+alwaysApply: false
+---
+
+# Statistical Methods (implement exactly as specified)
+
+## Validity
+- SRM: chi-square goodness of fit vs. 0.85/0.15. Flag if `p < 0.001`. Also report the observed share and |share − 0.85|.
+- Balance: SMD = `(mean_t − mean_c) / sqrt((var_t + var_c)/2)`. Flag `|SMD| > 0.1` (material) and note `> 0.02` (minor).
+- Joint balance: classifier predicting `treatment` from `f0`–`f11`, 5-fold CV AUC. Expect ≈ 0.50.
+- Exposure integrity: exposure rate per arm. Control should be 0.
+
+## Inference
+- Difference in proportions with **unpooled** SE: `se = sqrt(p1(1−p1)/n1 + p0(1−p0)/n0)`, 95% Wald CI, two-sided p.
+- Relative lift `p1/p0 − 1` with delta-method CI. Visit uses the same test with no multiplicity correction.
+- MDE = `(z_0.975 + z_0.80) × sqrt(p_c(1−p_c)(1/n_t + 1/n_c))`.
+- Follow-up sample size targets break-even uplift `C × e / V`, reported for 85/15 and 50/50 splits and for the targeted segment.
+
+## CUPED / CUPAC
+- Covariate `X` = 2-fold cross-fitted prediction of the outcome from `f0`–`f11` only (seed 42, no `treatment`).
+- `θ = Cov(Y, X) / Var(X)` pooled across arms. `Y_adj = Y − θ(X − mean(X))`.
+- Cross-check with Lin (2013): OLS of Y on treatment, centered features, and treatment × centered features, using HC2 SEs.
+- Report variance reduction %, CI width before and after, and the equivalent sample-size saving `1 / (1 − ρ²)`.
+
+## Uplift model
+- Split 40/20/40 train/val/test, stratified on `treatment × conversion`, seed 42.
+- T-learner: two `HistGradientBoostingClassifier(learning_rate=0.1, max_iter=300, max_leaf_nodes=31, min_samples_leaf=500, l2_regularization=1.0, early_stopping=True, validation_fraction=0.1, random_state=42)`. Score = `p̂₁ − p̂₀`.
+- Causal forest (`econml.CausalForestDML`) is optional and **exploratory** only. It runs on a train subsample.
+- Evaluate on test: Qini curve, normalized Qini coefficient, decile uplift with 95% CIs, and incremental conversions per $ by depth.
+
+## Policy economics
+- `Profit = V × incremental_conversions − C × expected_exposures`. Base case C = $0.10, V = $25. Grid C ∈ [$0.01, $2], V ∈ [$5, $200].
+- Apply the decision rule in plan section 9 **mechanically** and in code (a function that returns the policy), not by judgment.
+- Report break-even `C/V` for each policy and a heatmap of which policy wins over the (C, V) grid.

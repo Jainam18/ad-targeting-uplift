@@ -1,0 +1,19 @@
+---
+description: Conventions for analysis notebooks so they stay thin, ordered, and reproducible
+globs: **/*.ipynb
+alwaysApply: false
+---
+
+# Notebook Conventions
+
+- Notebooks live in `notebooks/`, numbered in execution order, one per plan section:
+  `01_data_prep`, `02_validity`, `03_ate`, `04_power`, `05_cuped`, `06_uplift_model`, `07_policy_economics`.
+- Notebooks are **thin**: they import from `src/uplift/`, call functions, show tables and charts, and explain results in markdown. Logic that is more than ~10 lines or reused moves into `src/`.
+- The first cell holds imports plus `from uplift.config import SEED, ...`. No magic numbers in cells.
+- Each notebook opens with a markdown cell giving the plan section it implements and its label (**confirmatory / supporting / exploratory**).
+- Load processed Parquet, never the raw CSV (except in `01_data_prep`).
+- Every reported number is also written to `results/<notebook>.json`, which the memo reads from. Never copy numbers into the memo by hand.
+- Figures are saved with `save_fig(fig, name)` to `reports/figures/`, not only shown inline.
+- Before handing a notebook to the user for review, use **Restart & Run All**. Cells must run top to bottom with no errors and no hidden state.
+- Don't print whole DataFrames. Use `.head()`, aggregated tables, or `display()` of small summaries.
+- Remove scratch cells and empty cells before committing.

@@ -1,0 +1,34 @@
+---
+description: Python coding standards and large-data handling for src/ and scripts
+globs: **/*.py
+alwaysApply: false
+---
+
+# Python Standards
+
+## Style
+- Python 3.13, type hints on all public functions, `ruff` for lint and format (line length 100).
+- Small, pure functions in `src/uplift/` grouped by stage: `data.py`, `validity.py`, `inference.py`, `power.py`, `cuped.py`, `uplift_models.py`, `policy.py`, `plots.py`.
+- Functions take DataFrames or arrays plus explicit params and return values or dataclasses. No hidden globals, printing, or file I/O inside stats functions.
+- Constants from the plan (seed, α, C, V, grids, hyperparameters) live in one place, `src/uplift/config.py`. Never re-type them elsewhere.
+- Use `numpy.random.default_rng(SEED)`, not `np.random.seed`.
+
+## Data handling (14M rows)
+- Read the raw CSV **once** to build `data/processed/criteo.parquet`. Everything downstream reads Parquet with `pd.read_parquet` or DuckDB.
+- Downcast dtypes: features `float32`; `treatment`, `exposure`, `visit`, and `conversion` `int8`. This cuts memory from ~1.7 GB to ~0.73 GB.
+- Load only the columns you need (`columns=[...]`). Prefer vectorized ops and avoid `.apply` row loops.
+- For sums and means that feed CIs, compute in `float64` to avoid precision loss.
+
+```python
+# ❌ BAD
+df = pd.read_csv("data/criteo-uplift-v2.1.csv")
+rate = df[df.treatment == 1].conversion.mean()
+
+# ✅ GOOD
+df = load_processed(columns=["treatment", "conversion"])
+res = diff_in_proportions(df["conversion"], df["treatment"])  # returns estimate, se, ci, p
+```
+
+## Testing
+- `tests/` with `pytest`. Each stats function gets a test on a small simulated dataset with a known effect (e.g., true ATE = 0.002), checking the estimate and CI coverage.
+- Check stats functions against a reference where one exists (e.g., `statsmodels` proportions test, `scipy.stats`).

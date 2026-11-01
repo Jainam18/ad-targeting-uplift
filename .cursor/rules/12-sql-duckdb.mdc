@@ -1,0 +1,34 @@
+---
+description: DuckDB SQL conventions for metric definitions and segment cuts
+globs: **/*.sql
+alwaysApply: false
+---
+
+# SQL (DuckDB) Conventions
+
+- SQL handles **metrics and segment cuts**. Python handles inference (SEs, CIs, tests). SQL returns counts and sums, never p-values.
+- One query per file in `sql/`, named by purpose: `arm_summary.sql`, `decile_uplift.sql`, `feature_quartiles.sql`.
+- Query Parquet directly: `FROM read_parquet('data/processed/criteo.parquet')`, or pass the path as a parameter (`$path`). Never hardcode absolute paths.
+- Lowercase keywords are fine, but be consistent. Use CTEs instead of nested subqueries, and one column per line in `SELECT`.
+- Return the **sufficient statistics** that Python needs to build CIs: `n`, `sum(conversion)`, `sum(visit)`, `sum(exposure)` per arm and segment.
+- Name cuts that the plan doesn't define as confirmatory with an `exploratory_` prefix, e.g. `exploratory_feature_quartiles.sql`.
+
+```sql
+-- arm_summary.sql
+with base as (
+    select treatment, conversion, visit, exposure
+    from read_parquet($path)
+)
+select
+    treatment,
+    count(*)                      as n,
+    sum(conversion)               as conversions,
+    sum(visit)                    as visits,
+    sum(exposure)                 as exposures,
+    avg(conversion::double)       as conv_rate
+from base
+group by treatment
+order by treatment;
+```
+
+- Run queries from Python with `duckdb.sql(Path("sql/x.sql").read_text(), params={...}).df()`.

@@ -1,0 +1,24 @@
+---
+description: How the agent works in this repo - never commit, and always explain every change
+alwaysApply: true
+---
+
+# Agent Workflow
+
+## Git: never commit
+- **Never** run `git commit`, `git push`, `git merge`, `git rebase`, `git reset`, `git stash`, `git tag`, or amend history, even if it seems helpful or a rule mentions "commit".
+- **Never** stage files (`git add`) unless the user explicitly asks in the current message.
+- Read-only git is fine: `git status`, `git diff`, `git log`, `git show`.
+- The user reviews and commits every change. When work is ready, say so and suggest a commit message, but don't run it.
+
+## Explain every change
+After writing or editing any code, notebook, SQL, config, or doc, explain:
+1. **What changed**: which files, and what was added, edited, or removed.
+2. **Why**: the reason, tied to the analysis plan section or the problem statement question it serves.
+3. **How it works**: walk through the key logic in plain language, including the statistical idea behind any formula (e.g., why the SE is unpooled, or why CUPAC reduces variance).
+4. **How to check it**: the command or cell to run, and what output to expect.
+5. **Assumptions or open questions**: anything the user should verify or decide.
+
+- Explain for someone who is learning. Define terms like ITT, SMD, Qini, and CUPAC the first time they come up in a change.
+- Keep explanations in the chat response, not in code comments. Code comments stay minimal and only state constraints the code can't show.
+- Prefer small, reviewable changes, one phase or module at a time, so each explanation stays digestible.

@@ -1,0 +1,33 @@
+---
+description: Project context, source-of-truth documents, repo layout, and reproducibility rules for the Criteo uplift experiment
+alwaysApply: true
+---
+
+# Criteo Uplift Experiment — Project Overview
+
+Goal: decide between **(a) treat all, (b) stop, (c) target top-k by predicted uplift** using the Criteo Uplift v2.1 RCT (~14M rows, `f0`–`f11`, `treatment`, `exposure`, `visit`, `conversion`).
+
+## Source of truth
+- `docs/00_analysis_plan.md` is the **pre-registered plan**. Metrics, tests, thresholds, seeds, splits, hyperparameters, and the decision rule come from it. Do not invent alternatives.
+- `docs/ProblemStatement.md` defines the questions and deliverables.
+- `docs/01_design_doc.md` is the **build roadmap**: module layout, phase order, and exit criteria. Work one phase at a time, in order, and tick its checkbox in section 10 when the exit criterion is met.
+- If a task requires deviating from the plan, **stop and say so**, then add a row to section 10 (Deviations log) with the change and reason before implementing.
+
+## Repo layout (create folders as needed, keep to this shape)
+```
+data/raw/          # original CSV/zip, never committed, never modified
+data/processed/    # Parquet built by scripts, never committed
+src/uplift/        # importable Python package: all reusable logic
+sql/               # DuckDB queries for metrics and segment cuts
+notebooks/         # numbered, thin notebooks that call src/ (01_validity.ipynb, ...)
+results/           # machine-written JSON/CSV of every reported number
+reports/figures/   # saved charts (PNG + SVG)
+docs/              # plan, memo, problem statement
+```
+
+## Reproducibility
+- Seed **42** everywhere (`random_state=42`, `np.random.default_rng(42)`). Never use unseeded randomness.
+- Python 3.13 venv at `.ads_venv/`. Any new dependency goes into `requirements.txt` with a pinned version (`pkg==x.y.z`).
+- `make all` must rebuild everything from raw data: download → Parquet → notebooks → figures → `results/`. Keep the `Makefile` in sync when adding steps.
+- Never commit data files, Parquet, model artifacts, `.DS_Store`, or the venv; keep `.gitignore` covering them.
+- Paths are relative to the repo root (use `pathlib.Path`); no absolute user paths.

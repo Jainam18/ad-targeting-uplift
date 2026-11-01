@@ -1,0 +1,26 @@
+---
+description: Standards for charts, the decision memo, and documentation updates
+globs: docs/**/*.md,reports/**,src/uplift/plots.py
+alwaysApply: false
+---
+
+# Reporting: Figures and Decision Memo
+
+## Figures (`reports/figures/`)
+- Required: lift with 95% CI (conversion and visit), Qini curve vs. random, decile uplift bars with CIs, and a policy-winner heatmap over (C, V).
+- Every chart has a title stating the takeaway, labeled axes with units (pp, %, $), n in the subtitle or caption, and a "confirmatory / supporting / exploratory" tag where relevant.
+- Always show uncertainty (error bars or bands). Use a zero reference line on effect charts.
+- Colorblind-safe palette, consistent colors (treatment vs. control and model vs. random) across all charts. Save as PNG (dpi 200) + SVG.
+
+## Decision memo (`docs/decision_memo.md`, one page)
+Write it for a decision-maker who reads nothing else. Use this order:
+1. **Recommendation**: one sentence giving policy (a), (b), or (c).
+2. **Expected impact**: incremental conversions and profit with 95% CIs, under the stated C and V.
+3. **Evidence**: validity checks passed or failed, ATE with CI, and targeting result (Qini, profit of excluded users).
+4. **Sensitivity**: where the recommendation flips in (C, V) and the break-even C/V.
+5. **Risks and caveats**: non-uniform sub-sampling, illustrative dollars, model drift, and any deviations from the plan.
+6. **Follow-up experiment**: design, allocation, sample size, duration assumption.
+
+- All numbers come from `results/*.json`. Round consistently (rates to 3 sig figs, pp to 3 decimals, $ to whole dollars at scale).
+- Plain language: say "the ad caused X more conversions per 1,000 users", not just "ATE = 0.00X".
+- Whenever the plan changes, update `docs/00_analysis_plan.md` section 10 as part of the same change.

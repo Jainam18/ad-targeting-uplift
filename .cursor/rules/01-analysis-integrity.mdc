@@ -1,0 +1,28 @@
+---
+description: Pre-registration discipline, causal-inference guardrails, and honest reporting rules for every analysis step
+alwaysApply: true
+---
+
+# Analysis Integrity
+
+This is a pre-registered analysis. Its credibility depends on not tuning to the results.
+
+## Hard rules
+- **One confirmatory test**: ITT difference in conversion rate, two-sided Wald test, α = 0.05. Everything else is labeled **supporting** or **exploratory** in code comments, chart titles, and the memo.
+- **Verify, don't assume**: the 85/15 split, exposure in control, and the cost/value numbers are checked against data and reported as found.
+- **Validity checks run first** (SRM, SMD balance, classifier AUC, exposure integrity). If one fails, still report results, flag it prominently, and lean on regression-adjusted estimates.
+- **Test split is touched once.** Fit on train, pick `k` on validation, report Qini, deciles, and policy profit on test. Never tune hyperparameters, `k`, or features after looking at test metrics.
+- Do not add metrics, segments, outcome transformations, or tests that the plan doesn't list unless they are logged as exploratory or as a deviation.
+- Never drop rows, winsorize, or filter users based on outcomes.
+
+## Causal semantics
+- Effects are estimated on **`treatment` (assignment, ITT)**, never on `exposure`. Comparing exposed vs. unexposed users is confounded and not allowed as a causal estimate.
+- **Cost** depends on `exposure`: cost per targeted user = `C × e(x)`.
+- Features `f0`–`f11` are pre-treatment and may be used as covariates. `visit` and `exposure` are post-treatment and must **never** be model features or CUPED covariates.
+- Uplift models never see `treatment` as a feature (T-learner fits separate arms). CUPAC predictions are cross-fitted.
+
+## Reporting
+- Every estimate ships with a 95% CI and n. Use absolute effects in percentage points (pp) and relative lift with delta-method CI.
+- Write down what the data shows, including nulls and failed checks. Don't call a result "trending" or "marginally significant".
+- At 14M rows, "significant" is not the same as "material". Report effect sizes such as the SRM deviation and |SMD| next to p-values.
+- Dollar figures are **illustrative**. The data was assembled from several tests and sub-sampled non-uniformly, so absolute incrementality is not Criteo's real number.
