@@ -9,7 +9,7 @@ data/processed/*
 *.joblib
 
 # Environment
-.ads_venv/
+.venv.nosync/
 .venv/
 __pycache__/
 *.py[cod]

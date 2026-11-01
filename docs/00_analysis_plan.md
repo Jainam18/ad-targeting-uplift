@@ -111,7 +111,7 @@ Any change to this plan after seeing data is recorded here, with the reason.
 
 | # | Change | Reason |
 |---|---|---|
-| — | none yet | — |
+| 1 | **Clarification (2026-10-31, before any validity check was run):** joint-balance check (section 4.3) is scored with 5-fold stratified cross-validated AUC (seed 42) and is **flagged if mean AUC > 0.55**. | Section 4.3 gave the expected value (≈ 0.50) but no failure threshold or fold count. At 14M rows a significance test on AUC would flag trivially small departures, so a practical threshold is fixed in advance instead. |
 
 ## 11. Reproducibility
 

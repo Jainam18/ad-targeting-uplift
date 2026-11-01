@@ -176,7 +176,7 @@ make all       # data -> analysis -> figures/results
 
 - [x] Phase 0: Scaffolding
 - [x] Phase 1: Data prep
-- [ ] Phase 2: Validity checks
+- [x] Phase 2: Validity checks
 - [ ] Phase 3: Average effect (confirmatory)
 - [ ] Phase 4: Power
 - [ ] Phase 5: CUPAC

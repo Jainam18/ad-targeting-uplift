@@ -9,7 +9,7 @@ alwaysApply: false
 ## Validity
 - SRM: chi-square goodness of fit vs. 0.85/0.15. Flag if `p < 0.001`. Also report the observed share and |share − 0.85|.
 - Balance: SMD = `(mean_t − mean_c) / sqrt((var_t + var_c)/2)`. Flag `|SMD| > 0.1` (material) and note `> 0.02` (minor).
-- Joint balance: classifier predicting `treatment` from `f0`–`f11`, 5-fold CV AUC. Expect ≈ 0.50.
+- Joint balance: classifier predicting `treatment` from `f0`–`f11`, 5-fold stratified CV AUC (seed 42). Expect ≈ 0.50; flag if mean AUC > 0.55 (deviation #1).
 - Exposure integrity: exposure rate per arm. Control should be 0.
 
 ## Inference

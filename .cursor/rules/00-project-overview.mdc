@@ -27,7 +27,7 @@ docs/              # plan, memo, problem statement
 
 ## Reproducibility
 - Seed **42** everywhere (`random_state=42`, `np.random.default_rng(42)`). Never use unseeded randomness.
-- Python 3.13 venv at `.ads_venv/`. Any new dependency goes into `requirements.txt` with a pinned version (`pkg==x.y.z`).
+- Python 3.13 venv at `.venv.nosync/` in the repo root, with Jupyter kernel `criteo-uplift`. The `.nosync` suffix stops iCloud syncing it (a synced venv breaks imports), so never rename it. Run tools via `make` or `.venv.nosync/bin/...`. Any new dependency goes into `requirements.txt` with a pinned version (`pkg==x.y.z`).
 - `make all` must rebuild everything from raw data: download → Parquet → notebooks → figures → `results/`. Keep the `Makefile` in sync when adding steps.
 - Never commit data files, Parquet, model artifacts, `.DS_Store`, or the venv; keep `.gitignore` covering them.
 - Paths are relative to the repo root (use `pathlib.Path`); no absolute user paths.
